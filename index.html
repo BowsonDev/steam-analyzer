@@ -158,14 +158,25 @@
 
             try {
                 const response = await fetch(`${API_URL}?steamId=${steamId}`);
-                const data = await response.json();
+                
+                // 檢查 Google 伺服器是否回傳正常狀態
+                if (!response.ok) throw new Error(`HTTP 狀態碼錯誤: ${response.status}`);
+                
+                // 將回傳內容先轉成純文字，確認是不是真的 JSON
+                const rawText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (e) {
+                    console.error("Google 原始回傳內容:", rawText);
+                    throw new Error("Google 回傳了非 JSON 的格式 (可能是伺服器內部報錯頁面)");
+                }
 
                 if (data.success) {
                     document.getElementById('playerTitle').innerText = `🏆 ${data.stats.profile.title}`;
                     document.getElementById('playerDesc').innerText = data.stats.profile.description;
                     document.getElementById('totalHours').innerText = `總遊玩時數：${data.stats.totalHours} 小時`;
                     
-                    // 呈現硬核盤點數據
                     document.getElementById('statTotal').innerText = data.libraryStats.total;
                     document.getElementById('statPlayed').innerText = data.libraryStats.over2Hours;
                     document.getElementById('statUnplayed').innerText = data.libraryStats.unplayed;
@@ -193,7 +204,9 @@
                     document.getElementById('loading').style.display = 'none';
                 }
             } catch (err) {
-                alert("⚠️ 連線失敗，請檢查 API 網址部署狀態與執行權限。");
+                // 顯示最真實的錯誤訊息
+                alert(`⚠️ 抓到真正錯誤了：${err.message}`);
+                console.error("詳細錯誤:", err);
                 document.getElementById('loading').style.display = 'none';
             }
         }
