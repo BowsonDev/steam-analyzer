@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steam 玩家性格分析與排行榜</title>
+    <title>Steam 玩家性格分析與遊戲排行榜</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -44,7 +44,7 @@
         .title-box h3 { color: #ffffff; margin: 0 0 5px 0; font-size: 24px; }
         .title-box p { color: #8f98a0; font-size: 14px; margin: 0; }
         
-        /* 硬核數據盤點區塊 */
+        /* 數據盤點區塊 */
         .stats-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
             background: #2a475e; padding: 15px; border-radius: 8px; margin-bottom: 15px;
@@ -102,18 +102,18 @@
         <button id="downloadBtn" class="share-btn" style="display:none; margin-top: 20px;" onclick="downloadCard()">📸 一鍵下載分享圖卡</button>
 
         <div class="leaderboard-section">
-            <h3>🏆 全站戰力排行榜</h3>
+            <h3>🏆 全站遊戲熱門排行榜</h3>
             <div class="board-container">
                 <div class="board">
-                    <h4>🔥 每週爆肝榜 (近兩週)</h4>
+                    <h4>🔥 每週熱門榜 (近兩週總計)</h4>
                     <table id="weeklyBoard">
-                        <tr><th>排名</th><th>ID</th><th>時數</th></tr>
+                        <tr><th>排名</th><th>遊戲名稱</th><th>總時數</th></tr>
                     </table>
                 </div>
                 <div class="board">
-                    <h4>👑 歷史仙人榜 (總時數)</h4>
+                    <h4>👑 歷史仙人榜 (全站總累計)</h4>
                     <table id="historicalBoard">
-                        <tr><th>排名</th><th>ID</th><th>時數</th></tr>
+                        <tr><th>排名</th><th>遊戲名稱</th><th>總時數</th></tr>
                     </table>
                 </div>
             </div>
@@ -121,10 +121,11 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbypPWY30i-TMQ-Cwn09NJOe_88qIck_UFi_fIAVYxNrNtVTdJP33PU1Yvu4p7AvFY6Hxg/exec";
+        // 已自動綁定你提供的最新 Web App 網址
+        const API_URL = "https://script.google.com/macros/s/AKfycbzYDo2iArd_q3IvLCVC_P9xcN0VTIz_jO2jq8Q06EYip_F19J14SHgU1fliJBQcYr_gUw/exec";
         let myChart = null;
 
-        // 網頁載入時自動抓取排行榜
+        // 網頁載入時自動抓取遊戲熱門排行榜
         window.onload = async function() {
             try {
                 const res = await fetch(`${API_URL}?action=getRankings`);
@@ -136,12 +137,13 @@
             } catch (e) { console.error("排行榜載入失敗", e); }
         }
 
+        // 精準呈現遊戲名稱與聚合時數
         function renderBoard(tableId, list) {
             const table = document.getElementById(tableId);
             list.forEach((item, index) => {
                 const row = table.insertRow();
                 row.innerHTML = `<td>${index + 1}</td>
-                                 <td style="max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.steamId}</td>
+                                 <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.name}">${item.name}</td>
                                  <td>${item.hours}h</td>`;
             });
         }
@@ -163,7 +165,7 @@
                     document.getElementById('playerDesc').innerText = data.stats.profile.description;
                     document.getElementById('totalHours').innerText = `總遊玩時數：${data.stats.totalHours} 小時`;
                     
-                    // 填入硬核盤點數據
+                    // 呈現硬核盤點數據
                     document.getElementById('statTotal').innerText = data.libraryStats.total;
                     document.getElementById('statPlayed').innerText = data.libraryStats.over2Hours;
                     document.getElementById('statUnplayed').innerText = data.libraryStats.unplayed;
@@ -191,7 +193,7 @@
                     document.getElementById('loading').style.display = 'none';
                 }
             } catch (err) {
-                alert("⚠️ 跨域安全阻擋，請確認網頁已部署至 GitHub Pages！");
+                alert("⚠️ 連線失敗，請檢查 API 網址部署狀態與執行權限。");
                 document.getElementById('loading').style.display = 'none';
             }
         }
