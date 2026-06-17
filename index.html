@@ -7,125 +7,169 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
+        /* 基礎設定與 Steam 深色風格 */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #1b2838; color: #c7d5e0; 
             text-align: center; padding: 20px; margin: 0;
+            line-height: 1.6;
         }
+        /* 主容器加寬以容納雙榜單 */
         .container { 
-            max-width: 600px; margin: 0 auto; 
-            background-color: #2a475e; padding: 25px; 
-            border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+            max-width: 850px; margin: 0 auto; 
+            background-color: #2a475e; padding: 30px; 
+            border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.6); 
         }
-        h2 { color: #ffffff; margin-top: 0; }
+        h2 { color: #ffffff; margin-top: 0; font-size: 28px; letter-spacing: 1px; }
+        
+        /* 輸入區塊美化 */
+        .input-group { margin-bottom: 25px; }
         input { 
-            padding: 12px; width: 80%; box-sizing: border-box;
-            border: none; border-radius: 6px; margin-bottom: 15px; 
+            padding: 15px; width: 60%; box-sizing: border-box;
+            border: 2px solid #171a21; border-radius: 8px; 
             background-color: #171a21; color: white; text-align: center;
+            font-size: 16px; transition: border 0.3s;
         }
-        button { 
-            padding: 12px 25px; background-color: #66c0f4; color: #1b2838; 
-            border: none; border-radius: 6px; cursor: pointer; 
-            font-weight: bold; font-size: 16px; width: 80%; margin-bottom: 10px;
+        input:focus { border-color: #66c0f4; outline: none; }
+        button.action-btn { 
+            padding: 15px 30px; background-color: #66c0f4; color: #1b2838; 
+            border: none; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; font-size: 16px; margin-left: 10px;
+            transition: background 0.3s, transform 0.1s;
         }
-        button:hover { background-color: #4192c0; }
-        .share-btn { background-color: #a4d007; color: #000000; }
+        button.action-btn:hover { background-color: #4192c0; transform: translateY(-2px); }
+        button.action-btn:active { transform: translateY(0); }
+        
+        .share-btn { background-color: #a4d007; color: #000000; width: 100%; margin-top: 20px;}
         .share-btn:hover { background-color: #8cb906; }
         
-        #loading { display: none; margin: 20px 0; color: #66c0f4; font-weight: bold; }
+        #loading { display: none; margin: 20px 0; color: #66c0f4; font-weight: bold; font-size: 18px; }
         
-        /* 截圖專區 */
+        /* 截圖專區 (卡片化設計) */
         #captureArea { 
-            display: none; background-color: #171a21; padding: 20px; 
-            border-radius: 12px; margin-top: 20px; text-align: left; 
-            border: 2px solid #2a475e;
+            display: none; background-color: #171a21; padding: 30px; 
+            border-radius: 16px; margin-top: 20px; text-align: left; 
+            border: 1px solid #3c5a73; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            max-width: 500px; margin-left: auto; margin-right: auto;
         }
-        .title-box { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #2a475e; padding-bottom: 10px; }
-        .title-box h3 { color: #ffffff; margin: 0 0 5px 0; font-size: 24px; }
-        .title-box p { color: #8f98a0; font-size: 14px; margin: 0; }
+        .title-box { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #2a475e; padding-bottom: 15px; }
+        .title-box h3 { color: #ffffff; margin: 0 0 10px 0; font-size: 26px; }
+        .title-box p { color: #8f98a0; font-size: 15px; margin: 0; }
         
-        /* 數據盤點區塊 */
+        /* 數據盤點區塊 (網格設計) */
         .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            background: #2a475e; padding: 15px; border-radius: 8px; margin-bottom: 15px;
-            text-align: center; font-size: 13px; color: #e1e1e1;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            background: #203345; padding: 20px; border-radius: 10px; margin-bottom: 20px;
+            text-align: center; font-size: 14px; color: #e1e1e1;
+            border: 1px solid #2a475e;
         }
-        .stats-grid div span { display: block; font-size: 18px; font-weight: bold; color: #66c0f4; margin-top: 4px; }
-        .stats-full { grid-column: span 2; border-top: 1px solid #171a21; padding-top: 10px; margin-top: 5px; }
+        .stats-grid div span.highlight { display: block; font-size: 22px; font-weight: bold; color: #66c0f4; margin-top: 5px; }
+        .stats-full { grid-column: span 2; border-top: 1px solid #2a475e; padding-top: 15px; margin-top: 5px; }
+        .stats-full span.sub-text { font-size: 12px; color: #8f98a0; font-weight: normal; }
 
-        .tag-list { list-style: none; padding: 0; margin-bottom: 20px; text-align: center;}
+        .tag-list { list-style: none; padding: 0; margin-bottom: 25px; text-align: center;}
         .tag-list li { 
-            background: #2a475e; color: #ffffff; margin: 4px; padding: 6px 10px; 
-            border-radius: 4px; display: inline-block; font-size: 12px;
+            background: #2a475e; color: #ffffff; margin: 5px; padding: 8px 12px; 
+            border-radius: 6px; display: inline-block; font-size: 13px;
+            border: 1px solid #3c5a73;
         }
-        canvas { background-color: #1b2838; border-radius: 8px; padding: 10px; margin: 0 auto; display: block; }
+        canvas { background-color: #1b2838; border-radius: 10px; padding: 15px; margin: 0 auto; display: block; border: 1px solid #2a475e;}
         
-        /* 排行榜區塊 */
-        .leaderboard-section { margin-top: 40px; background-color: #171a21; padding: 20px; border-radius: 12px; }
-        .board-container { display: flex; justify-content: space-between; gap: 15px; margin-top: 15px; }
-        @media (max-width: 600px) { .board-container { flex-direction: column; } }
-        .board { flex: 1; background: #2a475e; padding: 15px; border-radius: 8px; }
-        .board h4 { margin-top: 0; color: #66c0f4; border-bottom: 1px solid #171a21; padding-bottom: 10px; }
+        /* 排行榜區塊美化 */
+        .leaderboard-section { margin-top: 50px; background-color: #171a21; padding: 30px; border-radius: 16px; border: 1px solid #3c5a73; }
+        .leaderboard-section h3 { margin-top: 0; font-size: 24px; border-bottom: 2px solid #2a475e; padding-bottom: 15px; }
+        .board-container { display: flex; justify-content: space-between; gap: 25px; margin-top: 20px; }
+        @media (max-width: 768px) { 
+            .board-container { flex-direction: column; } 
+            input { width: 100%; margin-bottom: 10px; }
+            button.action-btn { width: 100%; margin-left: 0; }
+        }
+        .board { flex: 1; background: #203345; padding: 20px; border-radius: 10px; border: 1px solid #2a475e; }
+        .board h4 { margin-top: 0; color: #66c0f4; font-size: 18px; margin-bottom: 15px;}
+        
+        /* 捲軸設定：讓 20 名不會過長 */
+        .table-wrapper { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        /* 自訂捲軸樣式 */
+        .table-wrapper::-webkit-scrollbar { width: 8px; }
+        .table-wrapper::-webkit-scrollbar-track { background: #171a21; border-radius: 4px; }
+        .table-wrapper::-webkit-scrollbar-thumb { background: #3c5a73; border-radius: 4px; }
+        .table-wrapper::-webkit-scrollbar-thumb:hover { background: #66c0f4; }
+
         .board table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
-        .board th, .board td { padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .board th { color: #8f98a0; font-weight: normal; }
+        .board th { color: #8f98a0; font-weight: bold; position: sticky; top: 0; background: #203345; padding: 10px 5px; border-bottom: 2px solid #2a475e; }
+        .board td { padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .board tr:hover td { background-color: rgba(102, 192, 244, 0.1); }
+        .rank-col { width: 40px; text-align: center; font-weight: bold; color: #8f98a0;}
+        .top3 .rank-col { color: #e6c200; font-size: 16px;} /* 前三名特別顏色 */
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🎮 Steam 性格分析器</h2>
-        <input type="text" id="steamId" placeholder="輸入 Steam ID (例如: 76561198201541689)">
-        <br>
-        <button onclick="analyze()">開始分析</button>
+        <h2>🎮 Steam 玩家性格分析</h2>
+        <div class="input-group">
+            <input type="text" id="steamId" placeholder="輸入 Steam ID (例如: 76561198201541689)">
+            <button class="action-btn" onclick="analyze()">開始分析</button>
+        </div>
         
-        <div id="loading">🚀 正在讀取龐大的遊戲庫資料，請稍候...</div>
+        <div id="loading">🚀 正在解析龐大的遊戲庫資料，請稍候...</div>
         
         <div id="captureArea">
             <div class="title-box">
                 <h3 id="playerTitle">🏆</h3>
                 <p id="playerDesc"></p>
-                <p id="totalHours" style="color: #66c0f4; font-weight: bold; margin-top: 10px;"></p>
+                <p id="totalHours" style="color: #66c0f4; font-weight: bold; margin-top: 15px; font-size: 18px;"></p>
             </div>
             
             <div class="stats-grid">
-                <div>擁有遊戲<span><span id="statTotal">0</span> 款</span></div>
-                <div>大於 2hr<span><span id="statPlayed">0</span> 款</span></div>
-                <div class="stats-full">電子盆栽 (0hr)<span><span id="statUnplayed">0</span> 款 (<span id="statUnplayedPct">0</span>%)</span></div>
-                <div class="stats-full">精神時光屋<span><span id="statTopGame">-</span><br>(佔總時數 <span id="statTopPct">0</span>%)</span></div>
+                <div>擁有遊戲<span class="highlight"><span id="statTotal">0</span> 款</span></div>
+                <div>大於 2hr<span class="highlight"><span id="statPlayed">0</span> 款</span></div>
+                <div class="stats-full">
+                    🌱 電子盆栽 (0hr)
+                    <span class="highlight"><span id="statUnplayed">0</span> 款 <span class="sub-text">(佔 <span id="statUnplayedPct">0</span>%)</span></span>
+                </div>
+                <div class="stats-full">
+                    👑 精神時光屋
+                    <span class="highlight" id="statTopGame">-</span>
+                    <span class="sub-text">(佔總時數 <span id="statTopPct">0</span>%)</span>
+                </div>
             </div>
             
             <ul id="tags" class="tag-list"></ul>
             <canvas id="radarChart" width="400" height="400"></canvas>
-            <div style="text-align: center; color: #66c0f4; font-size: 12px; margin-top: 10px;">由 Steam 性格分析器生成</div>
+            <div style="text-align: center; color: #66c0f4; font-size: 12px; margin-top: 15px; opacity: 0.8;">由 Steam 性格分析器生成</div>
         </div>
 
-        <button id="downloadBtn" class="share-btn" style="display:none; margin-top: 20px;" onclick="downloadCard()">📸 一鍵下載分享圖卡</button>
+        <div style="max-width: 500px; margin: 0 auto;">
+            <button id="downloadBtn" class="action-btn share-btn" style="display:none;" onclick="downloadCard()">📸 一鍵下載分享圖卡</button>
+        </div>
 
         <div class="leaderboard-section">
             <h3>🏆 全站遊戲熱門排行榜</h3>
             <div class="board-container">
                 <div class="board">
                     <h4>🔥 每週熱門榜 (近兩週總計)</h4>
-                    <table id="weeklyBoard">
-                        <tr><th>排名</th><th>遊戲名稱</th><th>總時數</th></tr>
-                    </table>
+                    <div class="table-wrapper">
+                        <table id="weeklyBoard">
+                            <tr><th class="rank-col">#</th><th>遊戲名稱</th><th>總時數</th></tr>
+                        </table>
+                    </div>
                 </div>
                 <div class="board">
                     <h4>👑 歷史仙人榜 (全站總累計)</h4>
-                    <table id="historicalBoard">
-                        <tr><th>排名</th><th>遊戲名稱</th><th>總時數</th></tr>
-                    </table>
+                    <div class="table-wrapper">
+                        <table id="historicalBoard">
+                            <tr><th class="rank-col">#</th><th>遊戲名稱</th><th>總時數</th></tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 已自動綁定你提供的最新 Web App 網址
         const API_URL = "https://script.google.com/macros/s/AKfycbzYDo2iArd_q3IvLCVC_P9xcN0VTIz_jO2jq8Q06EYip_F19J14SHgU1fliJBQcYr_gUw/exec";
         let myChart = null;
 
-        // 網頁載入時自動抓取遊戲熱門排行榜
         window.onload = async function() {
             try {
                 const res = await fetch(`${API_URL}?action=getRankings`);
@@ -137,14 +181,15 @@
             } catch (e) { console.error("排行榜載入失敗", e); }
         }
 
-        // 精準呈現遊戲名稱與聚合時數
         function renderBoard(tableId, list) {
             const table = document.getElementById(tableId);
             list.forEach((item, index) => {
                 const row = table.insertRow();
-                row.innerHTML = `<td>${index + 1}</td>
-                                 <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.name}">${item.name}</td>
-                                 <td>${item.hours}h</td>`;
+                // 替前三名加上特寫 class
+                if (index < 3) row.classList.add('top3');
+                row.innerHTML = `<td class="rank-col">${index + 1}</td>
+                                 <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.name}">${item.name}</td>
+                                 <td style="color: #66c0f4; font-weight: bold;">${item.hours}h</td>`;
             });
         }
 
@@ -158,19 +203,9 @@
 
             try {
                 const response = await fetch(`${API_URL}?steamId=${steamId}`);
-                
-                // 檢查 Google 伺服器是否回傳正常狀態
                 if (!response.ok) throw new Error(`HTTP 狀態碼錯誤: ${response.status}`);
                 
-                // 將回傳內容先轉成純文字，確認是不是真的 JSON
-                const rawText = await response.text();
-                let data;
-                try {
-                    data = JSON.parse(rawText);
-                } catch (e) {
-                    console.error("Google 原始回傳內容:", rawText);
-                    throw new Error("Google 回傳了非 JSON 的格式 (可能是伺服器內部報錯頁面)");
-                }
+                const data = await response.json();
 
                 if (data.success) {
                     document.getElementById('playerTitle').innerText = `🏆 ${data.stats.profile.title}`;
@@ -196,7 +231,7 @@
 
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('captureArea').style.display = 'block';
-                    document.getElementById('downloadBtn').style.display = 'inline-block';
+                    document.getElementById('downloadBtn').style.display = 'block';
                     
                     renderChart(labels, chartData);
                 } else {
@@ -204,8 +239,7 @@
                     document.getElementById('loading').style.display = 'none';
                 }
             } catch (err) {
-                // 顯示最真實的錯誤訊息
-                alert(`⚠️ 抓到真正錯誤了：${err.message}`);
+                alert(`⚠️ 發生錯誤：${err.message}`);
                 console.error("詳細錯誤:", err);
                 document.getElementById('loading').style.display = 'none';
             }
@@ -229,7 +263,7 @@
                         r: {
                             angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
                             grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            pointLabels: { color: '#c7d5e0', font: { size: 12 } },
+                            pointLabels: { color: '#c7d5e0', font: { size: 12, family: "'Segoe UI', sans-serif" } },
                             ticks: { display: false, backdropColor: 'transparent' }
                         }
                     },
