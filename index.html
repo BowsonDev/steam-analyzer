@@ -15,7 +15,7 @@
         border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
         h2 { color: #ffffff;
         margin-top: 0; font-size: 28px; letter-spacing: 1px; }
-        .input-group { margin-bottom: 25px;
+        .input-group { margin-bottom: 20px;
         }
         input { padding: 15px; width: 60%; box-sizing: border-box; border: 2px solid #171a21;
         border-radius: 8px; background-color: #171a21; color: white; text-align: center; font-size: 16px;
@@ -68,7 +68,7 @@
         .chart-container { width: 100%; flex: 1; position: relative; min-height: 0;
         display: flex; justify-content: center; align-items: center; } 
         
-        /* 標籤網格排版 (左邊齊頭，每行3個) */
+        /* 標籤網格排版 */
         .tag-list { 
             display: grid;
             grid-template-columns: auto auto auto; justify-content: start; gap: 8px 10px; 
@@ -129,7 +129,7 @@
         .toggle-btn:hover { background: rgba(102, 192, 244, 0.1);
         }
 
-        /* === 新增：動畫與錯誤提示區 === */
+        /* === 動畫與常駐教學區 === */
         #loadingZone { display: none; margin: 20px 0; color: #66c0f4; font-weight: bold; font-size: 18px; text-align: center; }
         .spinner {
             width: 40px; height: 40px;
@@ -141,21 +141,23 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        #errorZone {
-            display: none; width: 100%; max-width: 800px; margin: 20px auto;
-            background: rgba(255, 60, 60, 0.1); border: 1px solid #ff3c3c; border-radius: 8px; padding: 15px; box-sizing: border-box;
-            text-align: left;
-        }
-        #errorMessage { color: #ff3c3c; font-weight: bold; margin-top: 0; margin-bottom: 10px; text-align: center; font-size: 18px; }
-        .help-accordion { background: rgba(0, 0, 0, 0.3); border-radius: 6px; overflow: hidden; margin-top: 10px; }
+        /* 常駐教學面板樣式 */
+        .help-accordion { background: rgba(0, 0, 0, 0.2); border-radius: 6px; overflow: hidden; margin: 0 auto 25px auto; max-width: 600px; text-align: left;}
         .help-accordion summary { padding: 12px; color: #fff; cursor: pointer; font-weight: bold; list-style: none; text-align: center; outline: none; }
         .help-accordion summary:hover { background: rgba(255, 255, 255, 0.1); }
         .help-content { padding: 15px; color: #ddd; font-size: 14px; line-height: 1.8; border-top: 1px solid rgba(255, 255, 255, 0.1); }
         .steam-link-btn {
-            display: block; text-align: center; margin-top: 15px; padding: 10px;
+            display: block; text-align: center; margin-top: 10px; padding: 10px;
             background: #2a475e; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; border: 1px solid #3c5a73;
         }
         .steam-link-btn:hover { background: #66c0f4; color: #1b2838; }
+
+        #errorZone {
+            display: none; width: 100%; max-width: 600px; margin: 0 auto 20px auto;
+            background: rgba(255, 60, 60, 0.1); border: 1px solid #ff3c3c; border-radius: 8px; padding: 15px; box-sizing: border-box;
+            text-align: center;
+        }
+        #errorMessage { color: #ff3c3c; font-weight: bold; margin-top: 0; margin-bottom: 5px; font-size: 18px; }
 
         @media (max-width: 768px) { 
             #captureArea { aspect-ratio: auto;
@@ -172,10 +174,22 @@
 <body>
     <div class="container">
         <h2>🎮 Steam 玩家性格分析</h2>
+        
         <div class="input-group">
             <input type="text" id="steamId" placeholder="輸入 Steam ID">
             <button class="action-btn" onclick="analyze()">開始分析</button>
         </div>
+
+        <details class="help-accordion">
+            <summary>🛠️ 第一次使用？點我查看 3 秒解鎖教學</summary>
+            <div class="help-content">
+                <p style="color: #66c0f4; font-weight: bold; margin-top: 0;">⚠️ 系統需要讀取您的遊戲庫時數，請確保已公開：</p>
+                <p>1. 前往 Steam 網頁版並登入。</p>
+                <p>2. 點擊右上角頭像進入「編輯個人檔案」 &rarr;「隱私設定」。</p>
+                <p>3. 將「遊戲詳情」狀態改為<strong>「公開」</strong>。</p>
+                <a href="https://steamcommunity.com/my/edit/settings" target="_blank" class="steam-link-btn">👉 點我直接前往 Steam 設定頁面</a>
+            </div>
+        </details>
         
         <div id="loadingZone">
             <div class="spinner"></div>
@@ -184,16 +198,7 @@
 
         <div id="errorZone">
             <p id="errorMessage">❌ 讀取失敗</p>
-            <details class="help-accordion">
-                <summary>🛠️ 帳號未公開？點我查看 3 秒解鎖教學</summary>
-                <div class="help-content">
-                    <p>1. 前往 Steam 網頁版並登入。</p>
-                    <p>2. 點擊右上角頭像進入「編輯個人檔案」 &rarr;「隱私設定」。</p>
-                    <p>3. 將「遊戲詳情」狀態改為<strong>「公開」</strong>。</p>
-                    <a href="https://steamcommunity.com/my/edit/settings" target="_blank" class="steam-link-btn">👉 點我直接前往 Steam 設定頁面</a>
-                    <button class="action-btn" onclick="analyze()" style="width: 100%; margin: 15px 0 0 0; background: #66c0f4; color: #1b2838;">我改好了，重新分析！</button>
-                </div>
-            </details>
+            <p style="color: #ddd; font-size: 14px; margin: 0;">請確認 ID 是否正確，並參考上方「解鎖教學」確認遊戲庫已公開！</p>
         </div>
         
         <div id="captureArea">
@@ -389,13 +394,11 @@
                     renderChart(labels, chartData);
                     await fetchGlobalRankings();
                 } else {
-                    // 顯示錯誤與摺疊教學區
                     document.getElementById('loadingZone').style.display = 'none';
                     document.getElementById('errorZone').style.display = 'block';
                     document.getElementById('errorMessage').innerText = "❌ 分析失敗：" + (data.error || "讀取不到資料，可能是帳號未公開。");
                 }
             } catch (err) {
-                // 顯示網路連線錯誤與摺疊教學區
                 document.getElementById('loadingZone').style.display = 'none';
                 document.getElementById('errorZone').style.display = 'block';
                 document.getElementById('errorMessage').innerText = "⚠️ 網路連線錯誤，請稍後再試。";
