@@ -234,10 +234,10 @@
 
         <div id="shareActions" class="share-actions" style="display:none;">
             <button class="action-btn btn-download" onclick="downloadCard()">📸 下載圖卡 (推薦)</button>
-            <button class="action-btn btn-social" onclick="alert('社群功能準備中：\n未來可直接帶入預設文案與網站連結發布至 Facebook')">FB</button>
-            <button class="action-btn btn-social" onclick="alert('社群功能準備中：\n未來可直接帶入 Hashtag 發布至 X (Twitter)')">X</button>
-            <button class="action-btn btn-social" onclick="alert('社群功能準備中：\n建議先點擊下載圖卡，再開啟 IG 貼文分享')">IG</button>
-            <button class="action-btn btn-social" onclick="alert('社群功能準備中：\n建議先點擊下載圖卡，再開啟 Threads 分享')">Threads</button>
+            <button class="action-btn btn-social" onclick="shareToFB()">FB</button>
+            <button class="action-btn btn-social" onclick="shareToX()">X</button>
+            <button class="action-btn btn-social" onclick="shareToThreads()">Threads</button>
+            <button class="action-btn btn-social" onclick="alert('💡 IG 限制網頁直接分享。請先點擊左側「下載圖卡」，再開啟 IG 發布貼文或限時動態喔！')">IG</button>
         </div>
 
         <div class="leaderboard-section">
@@ -443,6 +443,31 @@
                 link.href = canvas.toDataURL("image/png"); 
                 link.click(); 
             });
+        }
+        // === 社群分享功能 ===
+        const SITE_URL = "https://bowsondev.github.io/steam-analyzer/"; // 你的網站網址
+        const SHARE_TEXT_BASE = "快來測測你的 Steam 玩家性格！"; 
+
+        function shareToFB() {
+            // FB 只支援帶入網址，文字會自動抓取你網頁的 meta description
+            const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL)}`;
+            window.open(url, '_blank', 'width=600,height=400');
+        }
+
+        function shareToX() {
+            // X 可以帶入玩家剛剛測出的專屬稱號
+            const title = document.getElementById('playerTitle').innerText;
+            const text = `${SHARE_TEXT_BASE} 我測出來是 ${title}，你也來分析看看你的 Steam 遊戲庫吧！🎮\n`;
+            const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(SITE_URL)}`;
+            window.open(url, '_blank', 'width=600,height=400');
+        }
+
+        function shareToThreads() {
+            // Threads 的網址參數寫法
+            const title = document.getElementById('playerTitle').innerText;
+            const text = `${SHARE_TEXT_BASE} 我測出來是 ${title}，你也來分析看看你的 Steam 遊戲庫吧！🎮\n${SITE_URL}`;
+            const url = `https://threads.net/intent/post?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank', 'width=600,height=600');
         }
     </script>
 </body>
